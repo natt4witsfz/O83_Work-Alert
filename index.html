@@ -261,18 +261,19 @@ canvas#tbl { width: 100%; max-width: none; display: block; }
 // ══════════════════════════════════════════════
 // ⚠️ เปลี่ยนลิงก์ด้านล่างให้เป็นของคุณ (ห้ามลบเครื่องหมาย ' ' นะครับ)
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzno1VE7fCm23eGDpnE3Vg87V8RtLbxFLavd6A2ckjPRSH1Hrv-5CyL-PyEGkwuRbq-/exec'; 
-const PROJECT_NAME = 'ดิ ออริจิ้น รามอินทรา83 สเตชั่น';
+let PROJECT_NAME = 'ดิ ออริจิ้น รามอินทรา83 สเตชั่น';
 
 // ══════════════════════════════════════════════
 //  DATA
 // ══════════════════════════════════════════════
-const SHIFTS = [
+const DEFAULT_SHIFTS = [
   '07:00-16:00','08:00-17:00','09:00-18:00',
   '10:00-19:00','13:00-22:00','22:00-07:00'
 ];
+let SHIFTS = DEFAULT_SHIFTS.slice();
 const OFF_TYPES  = ['ลาป่วย','ลากิจ','หยุดพักร้อน','วันหยุดประจำสัปดาห์','วันหยุดชดเชย','ลาหยุดประจำวันเกิด'];
 const LATE_TYPES = ['มาสาย','ทำ OT'];
-const MAX_REMARK_CHARS = 200;
+let MAX_REMARK_CHARS = 200;
 
 let STAFF = [];
 
@@ -337,6 +338,11 @@ async function loadStaff() {
     if (!data.success) throw new Error(data.error || 'โหลดข้อมูลไม่ได้');
 
     STAFF = data.staff;
+    applyRemoteConfig(data.config || {
+      shifts: data.shifts,
+      projectName: data.projectName,
+      maxRemarkChars: data.maxRemarkChars
+    });
     if (!STAFF.length) throw new Error('ไม่พบข้อมูลพนักงานใน Sheet "พนักงาน"');
 
     initState();
@@ -349,6 +355,27 @@ async function loadStaff() {
         <div style="font-size:16px;font-weight:700;color:#E65100;margin-bottom:8px">⚠️ โหลดรายชื่อไม่ได้</div>
         <div style="font-size:13px;color:#BF360C;line-height:1.6">${err.message}<br>ตรวจสอบว่า Web App Deploy เป็น Anyone และ URL เป็น /exec เวอร์ชันล่าสุด</div>
       </div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  LOAD NO-CODE CONFIG FROM GOOGLE SHEET
+// ══════════════════════════════════════════════
+function applyRemoteConfig(remote) {
+  const cfg = remote && typeof remote === 'object' ? remote : {};
+  const remoteShifts = Array.isArray(cfg.shifts)
+    ? cfg.shifts.map(s => String(s || '').trim()).filter(Boolean)
+    : [];
+
+  // ถ้า Sheet มีกะ ให้ใช้ค่าจาก Sheet; ถ้า GAS รุ่นเก่ายังไม่ส่งค่า ให้ใช้ค่า default เดิม
+  if (remoteShifts.length) SHIFTS = [...new Set(remoteShifts)];
+
+  const projectName = String(cfg.projectName || '').trim();
+  if (projectName) PROJECT_NAME = projectName;
+
+  const maxRemarkChars = Number(cfg.maxRemarkChars);
+  if (Number.isFinite(maxRemarkChars) && maxRemarkChars >= 20 && maxRemarkChars <= 2000) {
+    MAX_REMARK_CHARS = Math.floor(maxRemarkChars);
   }
 }
 
@@ -415,11 +442,11 @@ function renderList() {
       <div class="remark-row">
         <span class="remark-label">📝 หมายเหตุ</span>
         <div class="remark-wrap">
-          <textarea class="remark-input" placeholder="พิมพ์หมายเหตุ (ถ้ามี, ไม่เกิน 200 ตัวอักษร)"
-            maxlength="200" rows="2"
-            oninput="setRemark('${s.nick}', this.value); this.nextElementSibling.textContent = this.value.length + '/200'"
+          <textarea class="remark-input" placeholder="พิมพ์หมายเหตุ (ถ้ามี, ไม่เกิน ${MAX_REMARK_CHARS} ตัวอักษร)"
+            maxlength="${MAX_REMARK_CHARS}" rows="2"
+            oninput="setRemark('${s.nick}', this.value); this.nextElementSibling.textContent = this.value.length + '/${MAX_REMARK_CHARS}'"
             autocomplete="off">${(st.remark||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
-          <span class="remark-count">${(st.remark||'').length}/200</span>
+          <span class="remark-count">${(st.remark||'').length}/${MAX_REMARK_CHARS}</span>
         </div>
       </div>
     `;
@@ -479,19 +506,19 @@ function setRemark(nick, val) {
 function drawCanvas() {
   const canvas = document.getElementById('tbl');
 
-  // ✅ FIX: ปรับรูปตารางให้พอดีขึ้น และให้หมายเหตุ 200 ตัวอักษรแสดงเต็มด้วยการขึ้นบรรทัดใหม่
-  // รูปที่ส่งเข้า LINE จะใช้ขนาดนี้ แม้หน้า Preview จะเลื่อนซ้าย-ขวาได้
-  const TABLE_W = 1400;
-  const W = Math.max(TABLE_W, canvas.parentElement.offsetWidth || TABLE_W);
+  // ตารางใช้ความกว้างคงที่ตามจำนวนกะ เพื่อให้ภาพกระชับบนจอใหญ่
+  // และให้มือถือเลื่อนแนวนอนได้โดยไม่บีบตัวหนังสือจนอ่านยาก
+  const INFO_MIN_W = 280;
+  const NOTE_W = 210;
+  const SHIFT_COL_W = 112;
+  const W = INFO_MIN_W + NOTE_W + Math.max(1, SHIFTS.length) * SHIFT_COL_W;
   const SCALE = 2;
 
-  const NOTE_W = 360;     // ✅ ช่องหมายเหตุรองรับ 200 ตัวอักษร และขึ้นบรรทัดใหม่
-  const BASE_ROW = 46;    // ✅ เพิ่มความสูงแถวเล็กน้อย
-  const NOTE_LINE_H = 16;
-  const HEAD_H = 52, TOP_H = 46, PAD_BOT = 16;
+  const BASE_ROW = 38;
+  const NOTE_LINE_H = 14;
+  const HEAD_H = 46, TOP_H = 42, PAD_BOT = 10;
 
   const N_COLS = SHIFTS.length;
-  const INFO_MIN_W = 300;
   const COL_W  = Math.floor((W - NOTE_W - INFO_MIN_W) / N_COLS);
   const INFO_W = W - COL_W * N_COLS - NOTE_W;
 
@@ -539,7 +566,7 @@ function drawCanvas() {
 
   const measureCanvas = document.createElement('canvas');
   const mx = measureCanvas.getContext('2d');
-  mx.font = `12px 'Sarabun', sans-serif`;
+  mx.font = `10px 'Sarabun', sans-serif`;
 
   const noteLinesByRow = STAFF.map(s => {
     const st = state[s.nick] || {};
@@ -575,11 +602,11 @@ function drawCanvas() {
   cx.font = `bold 12px 'Sarabun', sans-serif`;
   cx.textAlign = 'left';
   cx.textBaseline = 'alphabetic';
-  cx.fillText(PROJECT_NAME, 10, 18);
-  cx.font = `10px 'Sarabun', sans-serif`;
+  cx.fillText(PROJECT_NAME, 10, 17);
+  cx.font = `9px 'Sarabun', sans-serif`;
   cx.fillStyle = 'rgba(255,255,255,0.85)';
   const roundLabel = round === 'eve' ? 'แจ้งรอบเย็น' : 'แจ้งรอบเช้า (มีการเปลี่ยนแปลง)';
-  cx.fillText(`ประจำ${thDate(getTargetDate())}  ·  ${roundLabel}`, 10, 34);
+  cx.fillText(`ประจำ${thDate(getTargetDate())}  ·  ${roundLabel}`, 10, 31);
 
   // ─ HEADER BG ─
   cx.fillStyle = '#E8F5E9';
@@ -587,36 +614,36 @@ function drawCanvas() {
 
   // INFO column headers
   cx.fillStyle = '#1B5E20';
-  cx.font = `bold 10px 'Sarabun', sans-serif`;
+  cx.font = `bold 9px 'Sarabun', sans-serif`;
   cx.textAlign = 'left';
   const colDefs = [{label:'ลำดับ',w:30},{label:'ชื่อ',w:94},{label:'ชื่อเล่น',w:56}];
   let cxPos = 4;
   colDefs.forEach(c => {
-    cx.fillText(c.label, cxPos, TOP_H + HEAD_H/2 + 4);
+    cx.fillText(c.label, cxPos, TOP_H + HEAD_H/2 + 3);
     cxPos += c.w;
   });
-  cx.fillText('ตำแหน่ง', cxPos, TOP_H + HEAD_H/2 + 4);
+  cx.fillText('ตำแหน่ง', cxPos, TOP_H + HEAD_H/2 + 3);
 
   // SHIFT headers
   SHIFTS.forEach((sh, i) => {
     const x = INFO_W + COL_W * i;
     const [s, e] = sh.split('-');
     cx.fillStyle = '#1B5E20';
-    cx.font = `bold 10px 'Sarabun', sans-serif`;
+    cx.font = `bold 9px 'Sarabun', sans-serif`;
     cx.textAlign = 'center';
-    cx.fillText(s, x + COL_W/2, TOP_H + 16);
+    cx.fillText(s, x + COL_W/2, TOP_H + 14);
     cx.fillStyle = '#2E7D52';
-    cx.font = `10px 'Sarabun', sans-serif`;
-    cx.fillText(e, x + COL_W/2, TOP_H + 28);
+    cx.font = `9px 'Sarabun', sans-serif`;
+    cx.fillText(e, x + COL_W/2, TOP_H + 26);
     cx.fillStyle = '#666';
-    cx.font = `8px 'Sarabun', sans-serif`;
-    cx.fillText('น.', x + COL_W/2, TOP_H + 42);
+    cx.font = `7px 'Sarabun', sans-serif`;
+    cx.fillText('น.', x + COL_W/2, TOP_H + 38);
   });
 
   // NOTE column header
   const noteColX = INFO_W + COL_W * N_COLS;
   cx.fillStyle = '#1B5E20';
-  cx.font = `bold 11px 'Sarabun', sans-serif`;
+  cx.font = `bold 10px 'Sarabun', sans-serif`;
   cx.textAlign = 'center';
   cx.fillText('หมายเหตุ', noteColX + NOTE_W/2, TOP_H + HEAD_H/2 + 4);
 
@@ -637,15 +664,15 @@ function drawCanvas() {
 
     // info columns
     cx.fillStyle = '#333';
-    cx.font = `12px 'Sarabun', sans-serif`;
+    cx.font = `11px 'Sarabun', sans-serif`;
     cx.textAlign = 'center';
     cx.fillText(ri + 1, 15, midY + 4);
     cx.textAlign = 'left';
-    cx.font = `12px 'Sarabun', sans-serif`;
+    cx.font = `11px 'Sarabun', sans-serif`;
     cx.fillStyle = '#111';
     cx.fillText(s.name, 36, midY + 4);
     cx.fillStyle = '#555';
-    cx.font = `11px 'Sarabun', sans-serif`;
+    cx.font = `10px 'Sarabun', sans-serif`;
     cx.fillText(s.nick, 130, midY + 4);
     cx.fillText(s.pos,  186, midY + 4);
 
@@ -656,7 +683,7 @@ function drawCanvas() {
         cx.fillStyle = st.isLate ? '#FFE0B2' : '#C8E6C9';
         cx.fillRect(cellX + 1, y + 1, COL_W - 2, rowH - 2);
         cx.fillStyle = st.isLate ? '#E65100' : '#1B5E20';
-        cx.font = `bold 11px 'Sarabun', sans-serif`;
+        cx.font = `bold 10px 'Sarabun', sans-serif`;
         cx.textAlign = 'center';
         cx.fillText(st.isLate ? 'ทำงาน*' : 'ทำงาน', cellX + COL_W/2, midY + 4);
       }
@@ -670,7 +697,7 @@ function drawCanvas() {
       cx.fillRect(INFO_W, y, W - INFO_W - NOTE_W, rowH);
       const lbl = st.offType || 'หยุด/ลา';
       cx.fillStyle = '#C62828';
-      cx.font = `bold 11px 'Sarabun', sans-serif`;
+      cx.font = `bold 10px 'Sarabun', sans-serif`;
       cx.textAlign = 'center';
       cx.fillText(lbl, INFO_W + (W - INFO_W - NOTE_W)/2, midY + 4);
     }
@@ -682,7 +709,7 @@ function drawCanvas() {
       cx.fillStyle = '#FFF8E1';
       cx.fillRect(noteX + 1, y + 1, NOTE_W - 2, rowH - 2);
       cx.fillStyle = '#5D4037';
-      cx.font = `12px 'Sarabun', sans-serif`;
+      cx.font = `10px 'Sarabun', sans-serif`;
       cx.textAlign = 'left';
       cx.textBaseline = 'top';
       const startY = y + Math.max(6, (rowH - remarkLines.length * NOTE_LINE_H) / 2);
