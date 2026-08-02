@@ -311,12 +311,9 @@ function handleWorkAlertSubmit_(data) {
   const timestamp = formatTimestamp_(new Date(), cfg.TIMEZONE);
   let driveUrl = '-';
 
-  if (data.imageBase64 && cfg.DRIVE_FOLDER_ID) {
-    try {
-      driveUrl = saveImageToDrive_(data.imageBase64, data.date || workDate);
-    } catch (err) {
-      console.log('saveImageToDrive error:', err.stack || err.message);
-    }
+  if (data.imageBase64) {
+    if (!cfg.DRIVE_FOLDER_ID) throw new Error('ยังไม่ได้ตั้งค่า DRIVE_FOLDER_ID');
+    driveUrl = saveImageToDrive_(data.imageBase64);
   }
 
   appendLogRows_(staffData, {
@@ -401,16 +398,20 @@ function formatTimestamp_(date, timezone) {
   return Utilities.formatDate(date, timezone || 'Asia/Bangkok', 'dd/MM/yyyy HH:mm:ss');
 }
 
+function formatFileTimestamp_(date, timezone) {
+  return Utilities.formatDate(date, timezone || 'Asia/Bangkok', 'yyyyMMdd_HHmmss');
+}
+
 // ══════════════════════════════════════════════
 //  DRIVE SAVE
 // ══════════════════════════════════════════════
-function saveImageToDrive_(base64Image, dateText) {
+function saveImageToDrive_(base64Image) {
   const cfg = getConfig_();
-  if (!cfg.DRIVE_FOLDER_ID) return '-';
+  if (!cfg.DRIVE_FOLDER_ID) throw new Error('ยังไม่ได้ตั้งค่า DRIVE_FOLDER_ID');
 
   const bytes = Utilities.base64Decode(base64Image);
   const blob = Utilities.newBlob(bytes, 'image/png',
-    'O83_WorkAlert_' + sanitizeFileName_(dateText || formatTimestamp_(new Date(), cfg.TIMEZONE)) + '.png');
+    formatFileTimestamp_(new Date(), cfg.TIMEZONE) + '_Smart_time_dashboard_announcement.png');
   const folder = DriveApp.getFolderById(cfg.DRIVE_FOLDER_ID);
   const file = folder.createFile(blob);
   return file.getUrl();

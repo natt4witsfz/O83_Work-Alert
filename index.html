@@ -234,22 +234,19 @@ canvas#tbl { width: 100%; max-width: none; display: block; }
 <div class="section-label">เลือกกะเข้างาน / สถานะพนักงาน</div>
 <div id="staff-list"></div>
 
-<div class="section-label">Preview รูปที่จะส่ง LINE</div>
+<div class="section-label">Preview รูปภาพ</div>
 <div class="preview-section">
   <div class="preview-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-    ตัวอย่างรูปภาพ (กด Download เพื่อบันทึก)
+    ตัวอย่างรูปภาพ
   </div>
   <canvas id="tbl"></canvas>
 </div>
 
 <div class="footer">
-  <button class="btn-icon" onclick="downloadImg()" title="บันทึกรูป">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-  </button>
   <button class="btn-send" id="send-btn" onclick="saveToSheet()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-    บันทึกเข้า Google Sheet
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    ดาวน์โหลดรูปภาพ
   </button>
 </div>
 
@@ -803,8 +800,8 @@ async function saveToSheet() {
     if (res && res.success === false) {
       showToast('⚠️ บันทึกไม่สำเร็จ: ' + (res.error || 'ไม่ทราบสาเหตุ'));
     } else {
-      showToast('✅ บันทึกเข้า Google Sheet สำเร็จ! กำลังดาวน์โหลดรูป...');
-      // ดาวน์โหลดรูปอัตโนมัติหลังบันทึกสำเร็จ
+      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว กำลังดาวน์โหลด...');
+      // ดาวน์โหลดรูปอัตโนมัติหลังบันทึกเข้า Sheet + Drive สำเร็จ
       setTimeout(() => downloadImg(), 800);
     }
   } catch (e) {
@@ -812,7 +809,7 @@ async function saveToSheet() {
     console.error(e);
   } finally {
     btn.classList.remove('loading');
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกเข้า Google Sheet`;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> ดาวน์โหลดรูปภาพ`;
   }
 }
 
