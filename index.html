@@ -268,7 +268,7 @@ const DEFAULT_SHIFTS = [
   '10:00-19:00','13:00-22:00','22:00-07:00'
 ];
 let SHIFTS = DEFAULT_SHIFTS.slice();
-const OFF_TYPES  = ['ลาป่วย','ลากิจ','หยุดพักร้อน','วันหยุดประจำสัปดาห์','วันหยุดชดเชย','ลาหยุดประจำวันเกิด'];
+const OFF_TYPES  = ['ขาดงาน','ลาป่วย','ลากิจ','หยุดพักร้อน','วันหยุดประจำสัปดาห์','วันหยุดชดเชย','ลาหยุดประจำวันเกิด'];
 const LATE_TYPES = ['มาสาย','ทำ OT'];
 let MAX_REMARK_CHARS = 200;
 
@@ -799,8 +799,11 @@ async function saveToSheet() {
     const res = await postToGasViaHiddenForm(payload);
     if (res && res.success === false) {
       showToast('⚠️ บันทึกไม่สำเร็จ: ' + (res.error || 'ไม่ทราบสาเหตุ'));
+    } else if (res && res.noChange) {
+      showToast('ℹ️ ไม่มีการเปลี่ยนแปลง จึงไม่สร้างไฟล์ใหม่');
     } else {
-      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว กำลังดาวน์โหลด...');
+      const versionText = res && res.version ? ` เวอร์ชัน v${String(res.version).padStart(2, '0')}` : '';
+      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว' + versionText + ' กำลังดาวน์โหลด...');
       // ดาวน์โหลดรูปอัตโนมัติหลังบันทึกเข้า Sheet + Drive สำเร็จ
       setTimeout(() => downloadImg(), 800);
     }

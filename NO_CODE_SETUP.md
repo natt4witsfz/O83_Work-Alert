@@ -44,10 +44,10 @@ Apps Script จะสร้าง Sheet นี้ให้อัตโนมั�
 2. อัปโหลดรูปภาพไป Google Drive
 3. ดาวน์โหลดรูปภาพลงเครื่องผู้ใช้
 
-ชื่อไฟล์ใน Google Drive จะเป็นรูปแบบ:
+ชื่อไฟล์ใน Google Drive ของเวอร์ชันใหม่จะมีวันที่ทำงาน เวอร์ชัน รอบ และสถานะ `LATEST`/`HISTORY` ตามรายละเอียดด้านล่าง
 
 ```text
-YYYYMMDD_HHmmss_Smart_time_dashboard_announcement.png
+YYYYMMDD_vNN_YYYYMMDD_HHmmss_EVE|MORNING_LATEST|HISTORY_Smart_time_dashboard_announcement.png
 ```
 
 ## ลำดับการโหลด
@@ -61,3 +61,33 @@ GitHub Pages index.html
 ```
 
 ค่า default ในหน้าเว็บยังคงอยู่เป็น fallback หาก Apps Script รุ่นเก่ายังไม่ได้ Deploy เวอร์ชันใหม่
+
+## ประวัติการส่งและการเปลี่ยนแปลง
+
+ระบบจะสร้างชีตเพิ่มให้อัตโนมัติเมื่อเรียก `setupSystem()` หรือเปิด Web App:
+
+- `ประวัติการส่ง` เก็บทุกครั้งที่กดส่ง พร้อมเวอร์ชัน รอบ เวลา และสถานะไฟล์
+- `ประวัติการเปลี่ยนแปลง` เก็บเฉพาะพนักงานที่มีการเปลี่ยนแปลง เช่น ขาดงาน ลา มาสาย หรือเปลี่ยนกะ
+- `สรุปประจำเดือน` สรุปจำนวนและวันที่มาสาย ขาดงาน ลา และวันที่มีการอัปเดต
+
+ระบบใช้ **ชื่อพนักงาน** จากชีต `พนักงาน` เป็นตัวอ้างอิง ไม่ได้เพิ่มรหัสพนักงาน
+
+ถ้าส่งข้อมูลของวันที่ทำงานเดิมซ้ำโดยไม่มีการเปลี่ยนแปลง ระบบจะแจ้งว่าไม่มีการเปลี่ยนแปลง และจะไม่สร้างรูปใหม่ใน Google Drive
+
+## รูปแบบชื่อไฟล์ใน Google Drive
+
+รูปแบบใหม่คือ:
+
+```text
+YYYYMMDD_vNN_YYYYMMDD_HHmmss_EVE|MORNING_LATEST|HISTORY_Smart_time_dashboard_announcement.png
+```
+
+ตัวอย่าง:
+
+```text
+20260802_v01_20260801_180000_EVE_HISTORY_Smart_time_dashboard_announcement.png
+20260802_v02_20260801_180500_EVE_HISTORY_Smart_time_dashboard_announcement.png
+20260802_v03_20260802_093000_MORNING_LATEST_Smart_time_dashboard_announcement.png
+```
+
+เมื่อมีการส่งเวอร์ชันใหม่ ไฟล์เดิมจะถูกเปลี่ยนจาก `LATEST` เป็น `HISTORY` และไฟล์ใหม่จะเป็น `LATEST` จึงค้นหาไฟล์ล่าสุดของวันทำงานได้ง่ายจากชื่อไฟล์
