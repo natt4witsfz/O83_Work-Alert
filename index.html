@@ -321,6 +321,21 @@ function loadStaffJsonp() {
   });
 }
 
+async function loadStaffWithRetry(maxAttempts = 3) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await loadStaffJsonp();
+    } catch (err) {
+      lastError = err;
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, Math.min(1000 * (2 ** (attempt - 1)), 4000)));
+      }
+    }
+  }
+  throw lastError || new Error('โหลดรายชื่อไม่ได้');
+}
+
 async function loadStaff() {
   const container = document.getElementById('staff-list');
   container.innerHTML = `
@@ -331,7 +346,7 @@ async function loadStaff() {
     </div>`;
 
   try {
-    const data = await loadStaffJsonp();
+    const data = await loadStaffWithRetry();
     if (!data.success) throw new Error(data.error || 'โหลดข้อมูลไม่ได้');
 
     STAFF = data.staff;
@@ -351,6 +366,7 @@ async function loadStaff() {
       <div style="margin:12px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:12px;padding:20px 16px">
         <div style="font-size:16px;font-weight:700;color:#E65100;margin-bottom:8px">⚠️ โหลดรายชื่อไม่ได้</div>
         <div style="font-size:13px;color:#BF360C;line-height:1.6">${err.message}<br>ตรวจสอบว่า Web App Deploy เป็น Anyone และ URL เป็น /exec เวอร์ชันล่าสุด</div>
+        <button type="button" onclick="loadStaff()" style="margin-top:14px;border:0;border-radius:8px;padding:9px 16px;background:#E65100;color:#fff;font:600 14px Sarabun,sans-serif;cursor:pointer">ลองโหลดใหม่</button>
       </div>`;
   }
 }
@@ -874,8 +890,7 @@ function postToGasViaHiddenForm(payload) {
       if (finished) return;
       finished = true;
       cleanup();
-      // หากหมดเวลา แต่ไม่มีข้อมูลขัดข้อง (ไม่มี error) ให้ resolve ถือว่าส่งไปแล้ว
-      resolve({ success: true, lineTextStatus: 'TIMEOUT_WAIT', lineImageStatus: 'TIMEOUT_WAIT' });
+      reject(new Error('หมดเวลาการบันทึก: ระบบยังยืนยันผลไม่ได้ กรุณาตรวจสอบ Google Sheet ก่อนส่งซ้ำ'));
     }, 15000);
 
     try {
