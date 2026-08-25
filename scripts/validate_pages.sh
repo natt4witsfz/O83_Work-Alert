@@ -26,6 +26,7 @@ if [[ "$MODE" == "--local" ]]; then
   grep -q '<title>ตารางเข้างาน' index.html || fail "index.html title marker missing"
   grep -q 'function loadStaffJsonp' index.html || fail "GAS loader missing"
   grep -q 'หมดเวลา.*บันทึก' index.html || fail "submit timeout guard missing"
+  grep -q 'location.replace' display/index.html || fail "display redirect missing"
   echo "Local Pages validation passed"
   exit 0
 fi
@@ -48,5 +49,5 @@ check_live() {
 check_live "/" "200"
 check_live "/index.html" "200"
 check_live "/404.html" "200"
-check_live "/display/" "200"
+check_live "/display/" "200" "redirect"
 echo "Live Pages validation passed for $BASE_URL"
