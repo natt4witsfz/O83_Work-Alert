@@ -1,0 +1,43 @@
+name: Pages Reliability
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "404.html"
+      - ".nojekyll"
+      - "display/**"
+      - "scripts/validate_pages.sh"
+      - ".github/workflows/pages-reliability.yml"
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-reliability
+  cancel-in-progress: true
+
+jobs:
+  source-validation:
+    name: Validate Pages source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate source files
+        run: bash scripts/validate_pages.sh --local
+
+  live-validation:
+    name: Validate live Pages site
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Probe live site
+        run: bash scripts/validate_pages.sh --live "https://natt4witsfz.github.io/O83_Work-Alert"
