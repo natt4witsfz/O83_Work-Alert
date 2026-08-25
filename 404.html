@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ตารางเข้างาน · ดิ ออริจิ้น ราม 83 · 200 chars</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Prompt:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark: #1B5E20;
+  --green-mid: #2E7D52;
+  --green-main: #388E3C;
+  --green-light: #C8E6C9;
+  --green-pale: #E8F5E9;
+  --red-main: #C62828;
+  --red-light: #FFEBEE;
+  --orange-main: #E65100;
+  --orange-light: #FFF3E0;
+  --gray-900: #1C1C1E;
+  --gray-700: #3A3A3C;
+  --gray-500: #636366;
+  --gray-300: #C7C7CC;
+  --gray-100: #F2F2F7;
+  --gray-50: #FAFAFA;
+  --white: #FFFFFF;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 100px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--gray-100); }
+body {
+  font-family: 'Sarabun', sans-serif;
+  font-size: 15px;
+  color: var(--gray-900);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+  padding: 20px 16px 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.app-header h1 {
+  font-family: 'Prompt', sans-serif;
+  font-size: 17px; font-weight: 600;
+  color: #fff; letter-spacing: 0.01em;
+}
+.app-header .sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 3px; }
+.round-tabs {
+  display: flex; gap: 6px; margin-top: 14px;
+}
+.round-tab {
+  flex: 1; padding: 9px 8px; border-radius: var(--radius-sm);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.75);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s; text-align: center; line-height: 1.4;
+}
+.round-tab.active {
+  background: #fff;
+  color: var(--green-dark);
+  border-color: #fff;
+  font-weight: 600;
+}
+.round-tab .sub-label { font-size: 10px; opacity: 0.7; font-weight: 400; display: block; margin-top: 1px; }
+
+/* ── SECTION ── */
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gray-500);
+  padding: 16px 16px 6px;
+}
+
+/* ── STAFF CARD ── */
+.staff-card {
+  margin: 0 12px 8px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 14px;
+  transition: box-shadow 0.2s;
+}
+.staff-card.is-off { background: var(--red-light); }
+.staff-card.is-late { background: var(--orange-light); }
+.staff-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+  font-family: 'Prompt', sans-serif;
+}
+.av-mgr { background: #EDE7F6; color: #4527A0; }
+.av-op  { background: var(--green-pale); color: var(--green-dark); }
+.av-tech{ background: #FFF8E1; color: #F57F17; }
+.staff-name { font-size: 14px; font-weight: 600; color: var(--gray-900); }
+.staff-nick { font-weight: 400; color: var(--gray-500); font-size: 13px; }
+.staff-pos  { font-size: 12px; color: var(--gray-500); margin-top: 1px; }
+
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip {
+  font-size: 11px; padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gray-300);
+  background: var(--gray-50);
+  color: var(--gray-700);
+  cursor: pointer; transition: all 0.15s;
+  font-family: 'Sarabun', sans-serif;
+  white-space: nowrap;
+  -webkit-user-select: none; user-select: none;
+}
+.chip:active { transform: scale(0.96); }
+.chip.work  { background: var(--green-pale); color: var(--green-dark); border-color: #A5D6A7; font-weight: 600; }
+.chip.off   { background: #FFCDD2; color: var(--red-main); border-color: #EF9A9A; font-weight: 600; }
+.chip.late  { background: #FFE0B2; color: var(--orange-main); border-color: #FFCC80; font-weight: 600; }
+.chip.off-type  { background: #FFCDD2; color: var(--red-main); border-color: #EF9A9A; font-weight: 600; }
+.chip.late-type { background: #FFE0B2; color: var(--orange-main); border-color: #FFCC80; font-weight: 600; }
+
+.sub-chips {
+  display: flex; gap: 5px; flex-wrap: wrap;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--gray-300);
+}
+.sub-chips-label {
+  font-size: 10px; color: var(--gray-500); width: 100%; margin-bottom: 2px;
+}
+
+/* ── REMARK ROW ── */
+.remark-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--gray-300);
+}
+.remark-label {
+  font-size: 11px; color: var(--gray-500); white-space: nowrap; flex-shrink: 0;
+  padding-top: 6px;
+}
+.remark-wrap { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.remark-input {
+  width: 100%; border: 1px solid var(--gray-300); border-radius: 8px;
+  padding: 6px 10px; font-family: 'Sarabun', sans-serif;
+  font-size: 12px; color: var(--gray-700); outline: none;
+  background: var(--gray-50); transition: border-color 0.15s;
+  resize: none; line-height: 1.5;
+}
+.remark-input:focus { border-color: var(--green-main); background: #fff; }
+.remark-count { font-size: 10px; color: var(--gray-500); text-align: right; }
+
+
+.preview-section {
+  margin: 4px 12px 12px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.preview-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  font-size: 12px; font-weight: 600; color: var(--gray-500);
+  display: flex; align-items: center; gap: 6px;
+}
+.preview-header svg { width: 14px; height: 14px; opacity: 0.6; }
+canvas#tbl { width: 100%; max-width: none; display: block; }
+
+/* ── FOOTER ── */
+.footer {
+  padding: 12px;
+  display: flex; gap: 8px;
+  position: sticky; bottom: 0;
+  background: rgba(242,242,247,0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--gray-300);
+}
+.btn-icon {
+  width: 46px; height: 46px; border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; color: var(--gray-700);
+  transition: background 0.15s;
+}
+.btn-icon:active { background: var(--gray-100); }
+.btn-send {
+  flex: 1; height: 46px; border-radius: var(--radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+  color: #fff; font-family: 'Sarabun', sans-serif;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s; box-shadow: var(--shadow-md);
+}
+.btn-send:active { opacity: 0.85; }
+.btn-send.loading { opacity: 0.7; pointer-events: none; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--gray-900); color: #fff;
+  padding: 10px 20px; border-radius: var(--radius-pill);
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none; white-space: nowrap; z-index: 999;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>ดิ ออริจิ้น รามอินทรา 83</h1>
+  <div class="sub" id="today-display"></div>
+  <div class="round-tabs">
+    <button class="round-tab active" id="tab-eve" onclick="setRound('eve')">
+      🌆 รอบเย็น
+      <span class="sub-label">ส่งตารางพรุ่งนี้</span>
+    </button>
+    <button class="round-tab" id="tab-morn" onclick="setRound('morn')">
+      🌅 รอบเช้า
+      <span class="sub-label">แจ้งเปลี่ยนแปลง</span>
+    </button>
+  </div>
+</div>
+
+<div class="section-label">เลือกกะเข้างาน / สถานะพนักงาน</div>
+<div id="staff-list"></div>
+
+<div class="section-label">Preview รูปภาพ</div>
+<div class="preview-section">
+  <div class="preview-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    ตัวอย่างรูปภาพ
+  </div>
+  <canvas id="tbl"></canvas>
+</div>
+
+<div class="footer">
+  <button class="btn-send" id="send-btn" onclick="saveToSheet()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    ดาวน์โหลดรูปภาพ
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG — แก้ค่าเหล่านี้ก่อนใช้งานจริง
+// ══════════════════════════════════════════════
+// ⚠️ เปลี่ยนลิงก์ด้านล่างให้เป็นของคุณ (ห้ามลบเครื่องหมาย ' ' นะครับ)
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzno1VE7fCm23eGDpnE3Vg87V8RtLbxFLavd6A2ckjPRSH1Hrv-5CyL-PyEGkwuRbq-/exec'; 
+let PROJECT_NAME = 'ดิ ออริจิ้น รามอินทรา83 สเตชั่น';
+
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const DEFAULT_SHIFTS = [
+  '07:00-16:00','08:00-17:00','09:00-18:00',
+  '10:00-19:00','13:00-22:00','22:00-07:00'
+];
+let SHIFTS = DEFAULT_SHIFTS.slice();
+const OFF_TYPES  = ['ขาดงาน','ลาป่วย','ลากิจ','หยุดพักร้อน','วันหยุดประจำสัปดาห์','วันหยุดชดเชย','ลาหยุดประจำวันเกิด'];
+const LATE_TYPES = ['มาสาย','ทำ OT'];
+let MAX_REMARK_CHARS = 200;
+
+let STAFF = [];
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+let round = 'eve';
+let state = {};
+
+function initState() {
+  state = {};
+  // เพิ่มตัวแปร isLate เพื่อให้แยกกดมาสายคู่กับกะงานได้
+  STAFF.forEach(s => { state[s.nick] = { shift:null, offType:null, isLate:false, lateType:null, remark:'' }; });
+}
+
+// ══════════════════════════════════════════════
+//  LOAD STAFF FROM GOOGLE SHEET (via GAS)
+// ══════════════════════════════════════════════
+
+function loadStaffJsonp() {
+  return new Promise((resolve, reject) => {
+    const callbackName = 'jsonp_getStaff_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+    let script;
+
+    function cleanup() {
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
+      clearTimeout(timer);
+    }
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('โหลดรายชื่อไม่ได้: การเชื่อมต่อ Apps Script ใช้เวลานานเกินไป'));
+    }, 15000);
+
+    window[callbackName] = (data) => {
+      cleanup();
+      resolve(data);
+    };
+
+    script = document.createElement('script');
+    script.src = `${GAS_URL}?action=getStaff&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('โหลดรายชื่อไม่ได้: เรียก Apps Script ไม่สำเร็จ'));
+    };
+    document.body.appendChild(script);
+  });
+}
+
+async function loadStaff() {
+  const container = document.getElementById('staff-list');
+  container.innerHTML = `
+    <div style="text-align:center;padding:40px 16px;color:var(--gray-500)">
+      <div style="font-size:28px;margin-bottom:12px">⏳</div>
+      <div style="font-size:14px;font-weight:600">กำลังโหลดรายชื่อพนักงาน...</div>
+      <div style="font-size:12px;margin-top:4px;opacity:0.7">ดึงข้อมูลจาก Google Sheet</div>
+    </div>`;
+
+  try {
+    const data = await loadStaffJsonp();
+    if (!data.success) throw new Error(data.error || 'โหลดข้อมูลไม่ได้');
+
+    STAFF = data.staff;
+    applyRemoteConfig(data.config || {
+      shifts: data.shifts,
+      projectName: data.projectName,
+      maxRemarkChars: data.maxRemarkChars
+    });
+    if (!STAFF.length) throw new Error('ไม่พบข้อมูลพนักงานใน Sheet "พนักงาน"');
+
+    initState();
+    renderList();
+    setTimeout(drawCanvas, 150);
+
+  } catch (err) {
+    container.innerHTML = `
+      <div style="margin:12px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:12px;padding:20px 16px">
+        <div style="font-size:16px;font-weight:700;color:#E65100;margin-bottom:8px">⚠️ โหลดรายชื่อไม่ได้</div>
+        <div style="font-size:13px;color:#BF360C;line-height:1.6">${err.message}<br>ตรวจสอบว่า Web App Deploy เป็น Anyone และ URL เป็น /exec เวอร์ชันล่าสุด</div>
+      </div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+//  LOAD NO-CODE CONFIG FROM GOOGLE SHEET
+// ══════════════════════════════════════════════
+function applyRemoteConfig(remote) {
+  const cfg = remote && typeof remote === 'object' ? remote : {};
+  const remoteShifts = Array.isArray(cfg.shifts)
+    ? cfg.shifts.map(s => String(s || '').trim()).filter(Boolean)
+    : [];
+
+  // ถ้า Sheet มีกะ ให้ใช้ค่าจาก Sheet; ถ้า GAS รุ่นเก่ายังไม่ส่งค่า ให้ใช้ค่า default เดิม
+  if (remoteShifts.length) SHIFTS = [...new Set(remoteShifts)];
+
+  const projectName = String(cfg.projectName || '').trim();
+  if (projectName) PROJECT_NAME = projectName;
+
+  const maxRemarkChars = Number(cfg.maxRemarkChars);
+  if (Number.isFinite(maxRemarkChars) && maxRemarkChars >= 20 && maxRemarkChars <= 2000) {
+    MAX_REMARK_CHARS = Math.floor(maxRemarkChars);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  DATE HELPERS
+// ══════════════════════════════════════════════
+const DAYS_TH = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const MONTHS_TH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+function thDate(d) {
+  return `วัน${DAYS_TH[d.getDay()]}ที่ ${d.getDate()} ${MONTHS_TH[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+function getTargetDate() {
+  const d = new Date();
+  if (round === 'eve') d.setDate(d.getDate() + 1);
+  return d;
+}
+
+// ══════════════════════════════════════════════
+//  RENDER UI
+// ══════════════════════════════════════════════
+function avClass(t) {
+  return t === 'mgr' ? 'av-mgr' : t === 'op' ? 'av-op' : 'av-tech';
+}
+
+function renderList() {
+  const container = document.getElementById('staff-list');
+  container.innerHTML = '';
+  STAFF.forEach(s => {
+    const st = state[s.nick];
+    const isOff  = st.shift === 'off';
+    const isLate = st.isLate; // เช็คสถานะมาสายแบบอิสระ
+    const card = document.createElement('div');
+    card.className = 'staff-card' + (isOff ? ' is-off' : isLate ? ' is-late' : '');
+
+    // shift chips
+    let shiftHtml = SHIFTS.map(sh => {
+      const sel = st.shift === sh;
+      return `<span class="chip${sel?' work':''}" onclick="pickShift('${s.nick}','${sh}')">${sh}</span>`;
+    }).join('');
+    shiftHtml += `<span class="chip${isOff?' off':''}" onclick="pickShift('${s.nick}','off')">หยุด/ลา</span>`;
+    
+    // ย้ายมาสายให้กดคู่กับกะงานได้
+    shiftHtml += `<span class="chip${isLate?' late':''}" onclick="toggleLate('${s.nick}')">มาสาย</span>`;
+
+    // sub chips
+    let subHtml = '';
+    if (isOff) {
+      const opts = OFF_TYPES.map(t =>
+        `<span class="chip${st.offType===t?' off-type':''}" onclick="pickOff('${s.nick}','${t}')">${t}</span>`
+      ).join('');
+      subHtml = `<div class="sub-chips"><div class="sub-chips-label">ประเภทการลา</div>${opts}</div>`;
+    }
+
+    card.innerHTML = `
+      <div class="staff-top">
+        <div class="avatar ${avClass(s.type)}">${s.name.slice(0,2)}</div>
+        <div>
+          <div class="staff-name">${s.name} <span class="staff-nick">(${s.nick})</span></div>
+          <div class="staff-pos">${s.pos}</div>
+        </div>
+      </div>
+      <div class="chips">${shiftHtml}</div>
+      ${subHtml}
+      <div class="remark-row">
+        <span class="remark-label">📝 หมายเหตุ</span>
+        <div class="remark-wrap">
+          <textarea class="remark-input" placeholder="พิมพ์หมายเหตุ (ถ้ามี, ไม่เกิน ${MAX_REMARK_CHARS} ตัวอักษร)"
+            maxlength="${MAX_REMARK_CHARS}" rows="2"
+            oninput="setRemark('${s.nick}', this.value); this.nextElementSibling.textContent = this.value.length + '/${MAX_REMARK_CHARS}'"
+            autocomplete="off">${(st.remark||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+          <span class="remark-count">${(st.remark||'').length}/${MAX_REMARK_CHARS}</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function setRound(r) {
+  round = r;
+  document.getElementById('tab-eve').classList.toggle('active', r === 'eve');
+  document.getElementById('tab-morn').classList.toggle('active', r === 'morn');
+  if (STAFF.length) { renderList(); drawCanvas(); }
+}
+
+function pickShift(nick, sh) {
+  const st = state[nick];
+  st.shift = st.shift === sh ? null : sh;
+  if (sh === 'off') {
+     st.isLate = false;
+     st.lateType = null;
+  } else {
+     st.offType = null;
+  }
+  renderList(); drawCanvas();
+}
+
+function toggleLate(nick) {
+  const st = state[nick];
+  st.isLate = !st.isLate;
+  if (st.isLate && st.shift === 'off') {
+     st.shift = null;
+     st.offType = null;
+  }
+  if (!st.isLate) st.lateType = null;
+  renderList(); drawCanvas();
+}
+
+function pickOff(nick, t) {
+  state[nick].offType = state[nick].offType === t ? null : t;
+  renderList(); drawCanvas();
+}
+
+function pickLate(nick, t) {
+  state[nick].lateType = state[nick].lateType === t ? null : t;
+  renderList(); drawCanvas();
+}
+
+function setRemark(nick, val) {
+  const safeVal = String(val || '').slice(0, MAX_REMARK_CHARS);
+  state[nick].remark = safeVal;
+  drawCanvas();
+}
+
+// ══════════════════════════════════════════════
+//  CANVAS DRAW
+// ══════════════════════════════════════════════
+function drawCanvas() {
+  const canvas = document.getElementById('tbl');
+
+  // ตารางใช้ความกว้างคงที่ตามจำนวนกะ เพื่อให้ภาพกระชับบนจอใหญ่
+  // และให้มือถือเลื่อนแนวนอนได้โดยไม่บีบตัวหนังสือจนอ่านยาก
+  const INFO_MIN_W = 280;
+  const NOTE_W = 210;
+  const SHIFT_COL_W = 112;
+  const W = INFO_MIN_W + NOTE_W + Math.max(1, SHIFTS.length) * SHIFT_COL_W;
+  const SCALE = 2;
+
+  const BASE_ROW = 38;
+  const NOTE_LINE_H = 14;
+  const HEAD_H = 46, TOP_H = 42, PAD_BOT = 10;
+
+  const N_COLS = SHIFTS.length;
+  const COL_W  = Math.floor((W - NOTE_W - INFO_MIN_W) / N_COLS);
+  const INFO_W = W - COL_W * N_COLS - NOTE_W;
+
+  // ─ Helpers: ตัดบรรทัดหมายเหตุแบบไม่ตัดทิ้ง ─
+  function wrapTextLines(ctx, text, maxWidth) {
+    const raw = String(text || '').replace(/\r/g, '').trim();
+    if (!raw) return [];
+
+    const lines = [];
+    raw.split('\n').forEach(paragraph => {
+      const parts = paragraph.split(/(\s+)/).filter(Boolean);
+      let line = '';
+
+      parts.forEach(part => {
+        const test = line + part;
+        if (ctx.measureText(test).width <= maxWidth) {
+          line = test;
+          return;
+        }
+
+        if (line) {
+          lines.push(line.trim());
+          line = '';
+        }
+
+        // ถ้าข้อความภาษาไทย/คำยาวไม่มีเว้นวรรค ให้ตัดตามตัวอักษรเพื่อขึ้นบรรทัดใหม่
+        let chunk = '';
+        Array.from(part).forEach(ch => {
+          const testChunk = chunk + ch;
+          if (ctx.measureText(testChunk).width <= maxWidth) {
+            chunk = testChunk;
+          } else {
+            if (chunk) lines.push(chunk);
+            chunk = ch;
+          }
+        });
+        line = chunk;
+      });
+
+      if (line) lines.push(line.trim());
+    });
+
+    return lines;
+  }
+
+  const measureCanvas = document.createElement('canvas');
+  const mx = measureCanvas.getContext('2d');
+  mx.font = `10px 'Sarabun', sans-serif`;
+
+  const noteLinesByRow = STAFF.map(s => {
+    const st = state[s.nick] || {};
+    return wrapTextLines(mx, st.remark || '', NOTE_W - 18);
+  });
+
+  const rowHeights = noteLinesByRow.map(lines =>
+    Math.max(BASE_ROW, lines.length ? (lines.length * NOTE_LINE_H + 14) : BASE_ROW)
+  );
+  const totalRowsH = rowHeights.reduce((sum, h) => sum + h, 0);
+  const H = TOP_H + HEAD_H + totalRowsH + PAD_BOT;
+
+  canvas.width  = W * SCALE;
+  canvas.height = H * SCALE;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const cx = canvas.getContext('2d');
+  cx.scale(SCALE, SCALE);
+
+  // ─ BG ─
+  cx.fillStyle = '#FFFFFF';
+  cx.fillRect(0, 0, W, H);
+
+  // ─ TOP BAR ─
+  const grad = cx.createLinearGradient(0, 0, W, TOP_H);
+  grad.addColorStop(0, '#1B5E20');
+  grad.addColorStop(1, '#2E7D52');
+  cx.fillStyle = grad;
+  cx.fillRect(0, 0, W, TOP_H);
+
+  cx.fillStyle = '#FFFFFF';
+  cx.font = `bold 12px 'Sarabun', sans-serif`;
+  cx.textAlign = 'left';
+  cx.textBaseline = 'alphabetic';
+  cx.fillText(PROJECT_NAME, 10, 17);
+  cx.font = `9px 'Sarabun', sans-serif`;
+  cx.fillStyle = 'rgba(255,255,255,0.85)';
+  const roundLabel = round === 'eve' ? 'แจ้งรอบเย็น' : 'แจ้งรอบเช้า (มีการเปลี่ยนแปลง)';
+  cx.fillText(`ประจำ${thDate(getTargetDate())}  ·  ${roundLabel}`, 10, 31);
+
+  // ─ HEADER BG ─
+  cx.fillStyle = '#E8F5E9';
+  cx.fillRect(0, TOP_H, W, HEAD_H);
+
+  // INFO column headers
+  cx.fillStyle = '#1B5E20';
+  cx.font = `bold 9px 'Sarabun', sans-serif`;
+  cx.textAlign = 'left';
+  const colDefs = [{label:'ลำดับ',w:30},{label:'ชื่อ',w:94},{label:'ชื่อเล่น',w:56}];
+  let cxPos = 4;
+  colDefs.forEach(c => {
+    cx.fillText(c.label, cxPos, TOP_H + HEAD_H/2 + 3);
+    cxPos += c.w;
+  });
+  cx.fillText('ตำแหน่ง', cxPos, TOP_H + HEAD_H/2 + 3);
+
+  // SHIFT headers
+  SHIFTS.forEach((sh, i) => {
+    const x = INFO_W + COL_W * i;
+    const [s, e] = sh.split('-');
+    cx.fillStyle = '#1B5E20';
+    cx.font = `bold 9px 'Sarabun', sans-serif`;
+    cx.textAlign = 'center';
+    cx.fillText(s, x + COL_W/2, TOP_H + 14);
+    cx.fillStyle = '#2E7D52';
+    cx.font = `9px 'Sarabun', sans-serif`;
+    cx.fillText(e, x + COL_W/2, TOP_H + 26);
+    cx.fillStyle = '#666';
+    cx.font = `7px 'Sarabun', sans-serif`;
+    cx.fillText('น.', x + COL_W/2, TOP_H + 38);
+  });
+
+  // NOTE column header
+  const noteColX = INFO_W + COL_W * N_COLS;
+  cx.fillStyle = '#1B5E20';
+  cx.font = `bold 10px 'Sarabun', sans-serif`;
+  cx.textAlign = 'center';
+  cx.fillText('หมายเหตุ', noteColX + NOTE_W/2, TOP_H + HEAD_H/2 + 4);
+
+  // ─ ROWS ─
+  let y = TOP_H + HEAD_H;
+  STAFF.forEach((s, ri) => {
+    const rowH = rowHeights[ri];
+    const midY = y + rowH / 2;
+    const st = state[s.nick];
+
+    cx.fillStyle = ri % 2 === 0 ? '#F9FBF9' : '#FFFFFF';
+    cx.fillRect(0, y, W, rowH);
+
+    // row border
+    cx.strokeStyle = '#E0E0E0';
+    cx.lineWidth = 0.5;
+    cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke();
+
+    // info columns
+    cx.fillStyle = '#333';
+    cx.font = `11px 'Sarabun', sans-serif`;
+    cx.textAlign = 'center';
+    cx.fillText(ri + 1, 15, midY + 4);
+    cx.textAlign = 'left';
+    cx.font = `11px 'Sarabun', sans-serif`;
+    cx.fillStyle = '#111';
+    cx.fillText(s.name, 36, midY + 4);
+    cx.fillStyle = '#555';
+    cx.font = `10px 'Sarabun', sans-serif`;
+    cx.fillText(s.nick, 130, midY + 4);
+    cx.fillText(s.pos,  186, midY + 4);
+
+    // shift cells
+    SHIFTS.forEach((sh, ci) => {
+      const cellX = INFO_W + COL_W * ci;
+      if (st.shift === sh) {
+        cx.fillStyle = st.isLate ? '#FFE0B2' : '#C8E6C9';
+        cx.fillRect(cellX + 1, y + 1, COL_W - 2, rowH - 2);
+        cx.fillStyle = st.isLate ? '#E65100' : '#1B5E20';
+        cx.font = `bold 10px 'Sarabun', sans-serif`;
+        cx.textAlign = 'center';
+        cx.fillText(st.isLate ? 'ทำงาน*' : 'ทำงาน', cellX + COL_W/2, midY + 4);
+      }
+      cx.strokeStyle = '#DDD'; cx.lineWidth = 0.5;
+      cx.strokeRect(cellX, y, COL_W, rowH);
+    });
+
+    // off overlay
+    if (st.shift === 'off') {
+      cx.fillStyle = 'rgba(229,57,53,0.10)';
+      cx.fillRect(INFO_W, y, W - INFO_W - NOTE_W, rowH);
+      const lbl = st.offType || 'หยุด/ลา';
+      cx.fillStyle = '#C62828';
+      cx.font = `bold 10px 'Sarabun', sans-serif`;
+      cx.textAlign = 'center';
+      cx.fillText(lbl, INFO_W + (W - INFO_W - NOTE_W)/2, midY + 4);
+    }
+
+    // NOTE cell — ✅ แสดงเต็มด้วยการขึ้นบรรทัดใหม่ ไม่ตัดเป็น …
+    const noteX = INFO_W + COL_W * N_COLS;
+    const remarkLines = noteLinesByRow[ri];
+    if (remarkLines.length) {
+      cx.fillStyle = '#FFF8E1';
+      cx.fillRect(noteX + 1, y + 1, NOTE_W - 2, rowH - 2);
+      cx.fillStyle = '#5D4037';
+      cx.font = `10px 'Sarabun', sans-serif`;
+      cx.textAlign = 'left';
+      cx.textBaseline = 'top';
+      const startY = y + Math.max(6, (rowH - remarkLines.length * NOTE_LINE_H) / 2);
+      remarkLines.forEach((line, idx) => {
+        cx.fillText(line, noteX + 9, startY + idx * NOTE_LINE_H);
+      });
+      cx.textBaseline = 'alphabetic';
+    }
+    cx.strokeStyle = '#DDD'; cx.lineWidth = 0.5;
+    cx.strokeRect(noteX, y, NOTE_W, rowH);
+
+    y += rowH;
+  });
+
+  // ─ GRID LINES ─
+  cx.strokeStyle = '#BBB'; cx.lineWidth = 0.5;
+  let lineX = 0;
+  [30,94,56].forEach(w => {
+    lineX += w;
+    cx.beginPath(); cx.moveTo(lineX, TOP_H); cx.lineTo(lineX, H); cx.stroke();
+  });
+  cx.beginPath(); cx.moveTo(INFO_W, TOP_H); cx.lineTo(INFO_W, H); cx.stroke();
+  SHIFTS.forEach((_, i) => {
+    const x = INFO_W + COL_W * i;
+    cx.beginPath(); cx.moveTo(x, TOP_H); cx.lineTo(x, H); cx.stroke();
+  });
+  const noteLineX = INFO_W + COL_W * N_COLS;
+  cx.beginPath(); cx.moveTo(noteLineX, TOP_H); cx.lineTo(noteLineX, H); cx.stroke();
+
+  // ─ OUTER BORDER ─
+  cx.strokeStyle = '#999'; cx.lineWidth = 1;
+  cx.strokeRect(0, 0, W, H);
+}
+
+// ══════════════════════════════════════════════
+//  DOWNLOAD
+// ══════════════════════════════════════════════
+function downloadImg() {
+  const canvas = document.getElementById('tbl');
+  const a = document.createElement('a');
+  const d = getTargetDate();
+  a.download = `ตารางงาน_${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()+543}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('บันทึกรูปแล้ว ✓');
+}
+
+// ══════════════════════════════════════════════
+//  SEND TO LINE (ผ่าน Google Apps Script)
+// ══════════════════════════════════════════════
+async function saveToSheet() {
+  if (!STAFF.length) {
+    showToast('⚠️ ยังไม่มีรายชื่อพนักงาน');
+    return;
+  }
+
+  const ok = confirm('ยืนยันบันทึกตารางนี้เข้า Google Sheet ใช่ไหม?');
+  if (!ok) return;
+
+  // วาดใหม่ก่อนบันทึก เพื่อให้รูปตรงกับข้อมูลล่าสุด
+  drawCanvas();
+
+  const canvas = document.getElementById('tbl');
+  const imageBase64 = canvas.toDataURL('image/png').split(',')[1];
+  const targetDate = getTargetDate();
+
+  const payload = {
+    action: 'submitSchedule',
+    round,
+    date: `${targetDate.getDate()}/${targetDate.getMonth()+1}/${targetDate.getFullYear()+543}`,
+    dateObj: targetDate.toISOString(),
+    projectName: PROJECT_NAME,
+    imageBase64,
+    staffData: STAFF.map(s => ({
+      name: s.name,
+      nick: s.nick,
+      pos: s.pos,
+      shift: state[s.nick].shift,
+      offType: state[s.nick].offType,
+      lateType: state[s.nick].isLate ? (state[s.nick].lateType || 'มาสาย') : null,
+      remark: (state[s.nick].remark || '').slice(0, MAX_REMARK_CHARS)
+    }))
+  };
+
+  const btn = document.getElementById('send-btn');
+  btn.classList.add('loading');
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> กำลังบันทึก...`;
+
+  try {
+    const res = await postToGasViaHiddenForm(payload);
+    if (res && res.success === false) {
+      showToast('⚠️ บันทึกไม่สำเร็จ: ' + (res.error || 'ไม่ทราบสาเหตุ'));
+    } else if (res && res.noChange) {
+      showToast('ℹ️ ไม่มีการเปลี่ยนแปลง จึงไม่สร้างไฟล์ใหม่');
+    } else {
+      const versionText = res && res.version ? ` เวอร์ชัน v${String(res.version).padStart(2, '0')}` : '';
+      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว' + versionText + ' กำลังดาวน์โหลด...');
+      // ดาวน์โหลดรูปอัตโนมัติหลังบันทึกเข้า Sheet + Drive สำเร็จ
+      setTimeout(() => downloadImg(), 800);
+    }
+  } catch (e) {
+    showToast('⚠️ บันทึกไม่สำเร็จ: ' + e.message);
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> ดาวน์โหลดรูปภาพ`;
+  }
+}
+
+function postToGasViaHiddenForm(payload) {
+  return new Promise((resolve, reject) => {
+    const iframeName = 'gas_post_iframe_' + Date.now();
+    let finished = false;
+
+    const iframe = document.createElement('iframe');
+    iframe.name = iframeName;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = GAS_URL;
+    form.target = iframeName;
+    form.enctype = 'application/x-www-form-urlencoded';
+    form.acceptCharset = 'UTF-8';
+    form.style.display = 'none';
+
+    const field = document.createElement('textarea');
+    field.name = 'payload';
+    field.value = JSON.stringify(payload);
+    form.appendChild(field);
+    document.body.appendChild(form);
+
+    function cleanup() {
+      window.removeEventListener('message', messageListener);
+      setTimeout(() => {
+        try { form.remove(); } catch (_) {}
+        try { iframe.remove(); } catch (_) {}
+      }, 500);
+    }
+
+    const messageListener = (event) => {
+      if (finished) return;
+      // ตรวจสอบว่ามีข้อมูลส่งมาจาก iframe ที่เกี่ยวกับผลการบันทึก
+      if (event.data && typeof event.data === 'object' && 'success' in event.data) {
+        finished = true;
+        clearTimeout(timer);
+        cleanup();
+        if (event.data.success) {
+          resolve(event.data);
+        } else {
+          reject(new Error(event.data.error || 'เกิดข้อผิดพลาดจาก Apps Script'));
+        }
+      }
+    };
+
+    window.addEventListener('message', messageListener);
+
+    iframe.onload = () => {
+      // โหลด iframe เสร็จ แต่ยังไม่ได้รับการตอบกลับผ่าน postMessage
+    };
+
+    // บางครั้ง iframe load ไม่ยิง callback หรือไม่ส่ง message กลับ จึงมี fallback หลัง 15 วินาที
+    const timer = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      // หากหมดเวลา แต่ไม่มีข้อมูลขัดข้อง (ไม่มี error) ให้ resolve ถือว่าส่งไปแล้ว
+      resolve({ success: true, lineTextStatus: 'TIMEOUT_WAIT', lineImageStatus: 'TIMEOUT_WAIT' });
+    }, 15000);
+
+    try {
+      form.submit();
+    } catch (err) {
+      clearTimeout(timer);
+      finished = true;
+      cleanup();
+      reject(err);
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+const now = new Date();
+document.getElementById('today-display').textContent =
+  `วันนี้: ${thDate(now)} · เวลา ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} น.`;
+
+// โหลดรายชื่อพนักงานจาก Google Sheet
+loadStaff();
+</script>
+<style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+</style>
+</body>
+</html>
