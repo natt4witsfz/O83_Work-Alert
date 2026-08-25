@@ -36,6 +36,7 @@ fi
 check_live() {
   local path="$1"
   local expected="$2"
+  local marker="${3:-app}"
   local body="$TMP_DIR/body-$(echo "$path" | tr '/?' '__').html"
   local status
   status="$(curl -L --max-time 30 -sS -o "$body" -w '%{http_code}' "${BASE_URL}${path}")" || fail "Request failed: ${BASE_URL}${path}"
@@ -43,7 +44,11 @@ check_live() {
   if grep -qi 'Page not found.*GitHub Pages' "$body"; then
     fail "GitHub Pages default 404 body detected at ${BASE_URL}${path}"
   fi
-  grep -q '<title>ตารางเข้างาน' "$body" || fail "App title marker missing at ${BASE_URL}${path}"
+  if [[ "$marker" == "redirect" ]]; then
+    grep -q 'location.replace' "$body" || fail "Redirect marker missing at ${BASE_URL}${path}"
+  else
+    grep -q '<title>ตารางเข้างาน' "$body" || fail "App title marker missing at ${BASE_URL}${path}"
+  fi
 }
 
 check_live "/" "200"
