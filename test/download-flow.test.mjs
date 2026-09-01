@@ -50,10 +50,12 @@ test('Apps Script POST response closes its script tag so postMessage can run', (
   assert.equal(responseBuilder.includes(String.raw`<\\/script>`), false, 'response should not emit an escaped closing tag');
 });
 
-test('Hidden iframe POST has a load fallback when postMessage is unavailable', () => {
+test('Apps Script POST does not depend on cross-origin iframe postMessage', () => {
   const postStart = indexHtml.indexOf('function postToGasViaHiddenForm');
   const postSource = indexHtml.slice(postStart, indexHtml.indexOf('\n// ══════════════════════════════════════════════\n//  TOAST', postStart));
 
-  assert.ok(postSource.includes('legacyFallback'), 'iframe load should resolve through a legacy fallback');
-  assert.ok(postSource.includes('submitted'), 'fallback should ignore the iframe initial blank load');
+  assert.ok(postSource.includes("mode: 'no-cors'"), 'POST should work without readable cross-origin response headers');
+  assert.ok(postSource.includes('new URLSearchParams'), 'POST should keep the Apps Script form-compatible body');
+  assert.ok(postSource.includes('networkOnly: true'), 'network completion should be enough for the legacy deployment');
+  assert.doesNotMatch(postSource, /createElement\('iframe'\)/, 'POST should not wait for an iframe callback');
 });

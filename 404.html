@@ -893,82 +893,32 @@ async function saveToSheet() {
   }
 }
 
-function postToGasViaHiddenForm(payload) {
-  return new Promise((resolve, reject) => {
-    const iframeName = 'gas_post_iframe_' + Date.now();
-    let finished = false;
+async function postToGasViaHiddenForm(payload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
-    const iframe = document.createElement('iframe');
-    iframe.name = iframeName;
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    let submitted = false;
+  try {
+    // Apps Script ห่อผลลัพธ์ไว้ในหน้า HTML ของตัวเอง ทำให้ iframe/postMessage
+    // ยืนยันผลกลับมาที่ GitHub Pages ไม่ได้ ใช้ form-urlencoded แบบ no-cors
+    // ซึ่งเป็นคำขอชนิดเดียวกับฟอร์มเดิม แต่รอเพียง network response เท่านั้น
+    await fetch(GAS_URL, {
+      method: 'POST',
+      body: new URLSearchParams({ payload: JSON.stringify(payload) }),
+      mode: 'no-cors',
+      redirect: 'follow',
+      signal: controller.signal,
+      keepalive: true
+    });
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = GAS_URL;
-    form.target = iframeName;
-    form.enctype = 'application/x-www-form-urlencoded';
-    form.acceptCharset = 'UTF-8';
-    form.style.display = 'none';
-
-    const field = document.createElement('textarea');
-    field.name = 'payload';
-    field.value = JSON.stringify(payload);
-    form.appendChild(field);
-    document.body.appendChild(form);
-
-    function cleanup() {
-      window.removeEventListener('message', messageListener);
-      setTimeout(() => {
-        try { form.remove(); } catch (_) {}
-        try { iframe.remove(); } catch (_) {}
-      }, 500);
+    return { success: true, networkOnly: true };
+  } catch (error) {
+    if (error && error.name === 'AbortError') {
+      throw new Error('หมดเวลาการบันทึก: ระบบยังยืนยันผลไม่ได้ กรุณาตรวจสอบ Google Sheet ก่อนส่งซ้ำ');
     }
-
-    const messageListener = (event) => {
-      if (finished) return;
-      // ตรวจสอบว่ามีข้อมูลส่งมาจาก iframe ที่เกี่ยวกับผลการบันทึก
-      if (event.data && typeof event.data === 'object' && 'success' in event.data) {
-        finished = true;
-        clearTimeout(timer);
-        cleanup();
-        if (event.data.success) {
-          resolve(event.data);
-        } else {
-          reject(new Error(event.data.error || 'เกิดข้อผิดพลาดจาก Apps Script'));
-        }
-      }
-    };
-
-    window.addEventListener('message', messageListener);
-
-    iframe.onload = () => {
-      if (!submitted || finished) return;
-      finished = true;
-      clearTimeout(timer);
-      cleanup();
-      resolve({ success: true, legacyFallback: true });
-    };
-
-    // บางครั้ง iframe load ไม่ยิง callback หรือไม่ส่ง message กลับ จึงมี fallback หลัง 15 วินาที
-    const timer = setTimeout(() => {
-      if (finished) return;
-      finished = true;
-      cleanup();
-      reject(new Error('หมดเวลาการบันทึก: ระบบยังยืนยันผลไม่ได้ กรุณาตรวจสอบ Google Sheet ก่อนส่งซ้ำ'));
-    }, 15000);
-
-    try {
-      submitted = true;
-      form.submit();
-    } catch (err) {
-      clearTimeout(timer);
-      finished = true;
-      cleanup();
-      reject(err);
-    }
-  });
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 // ══════════════════════════════════════════════
