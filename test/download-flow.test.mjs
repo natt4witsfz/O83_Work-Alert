@@ -43,6 +43,7 @@ test('Apps Script POST response closes its script tag so postMessage can run', (
   const responseBuilder = codeGs.slice(responseBuilderStart, codeGs.indexOf('\nfunction escapeHtml_', responseBuilderStart));
 
   assert.ok(responseBuilderStart >= 0, 'outputPostResult_ should exist');
-  assert.ok(responseBuilder.includes('</script>'), 'response should contain a real closing script tag');
+  assert.ok(responseBuilder.includes("const scriptClose = '<' + '/script>';"), 'response should build a real closing script tag at runtime');
+  assert.ok(responseBuilder.includes('${scriptClose}</body></html>'), 'response should append the runtime closing script tag');
   assert.equal(responseBuilder.includes(String.raw`<\\/script>`), false, 'response should not emit an escaped closing tag');
 });
