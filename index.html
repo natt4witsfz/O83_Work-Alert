@@ -760,11 +760,48 @@ function drawCanvas() {
 // ══════════════════════════════════════════════
 //  DOWNLOAD
 // ══════════════════════════════════════════════
+function getDownloadFileName() {
+  const d = getTargetDate();
+  return `ตารางงาน_${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()+543}.png`;
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => {
+      if (blob) resolve(blob);
+      else reject(new Error('สร้างไฟล์รูปภาพไม่สำเร็จ'));
+    }, 'image/png');
+  });
+}
+
+async function chooseImageSave() {
+  if (typeof window.showSaveFilePicker !== 'function') return null;
+
+  return window.showSaveFilePicker({
+    suggestedName: getDownloadFileName(),
+    types: [{
+      description: 'PNG image',
+      accept: { 'image/png': ['.png'] }
+    }]
+  });
+}
+
+async function saveCanvasToFile(fileHandle) {
+  const canvas = document.getElementById('tbl');
+  const blob = await canvasToBlob(canvas);
+  const writable = await fileHandle.createWritable();
+  try {
+    await writable.write(blob);
+  } finally {
+    await writable.close();
+  }
+  showToast('บันทึกรูปแล้ว ✓');
+}
+
 function downloadImg() {
   const canvas = document.getElementById('tbl');
   const a = document.createElement('a');
-  const d = getTargetDate();
-  a.download = `ตารางงาน_${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()+543}.png`;
+  a.download = getDownloadFileName();
   a.href = canvas.toDataURL('image/png');
   a.click();
   showToast('บันทึกรูปแล้ว ✓');
@@ -812,16 +849,40 @@ async function saveToSheet() {
   btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> กำลังบันทึก...`;
 
   try {
+    let fileHandle = null;
+    try {
+      // เรียกก่อน await ฝั่ง server เพื่อให้ browser เปิด Save As จากการคลิกปุ่มโดยตรง
+      fileHandle = await chooseImageSave();
+    } catch (pickerError) {
+      if (pickerError && pickerError.name === 'AbortError') {
+        showToast('ยกเลิกการเลือกไฟล์รูปภาพ');
+        return;
+      }
+      console.warn('Native file picker unavailable; using browser download fallback.', pickerError);
+    }
+
     const res = await postToGasViaHiddenForm(payload);
     if (res && res.success === false) {
       showToast('⚠️ บันทึกไม่สำเร็จ: ' + (res.error || 'ไม่ทราบสาเหตุ'));
     } else if (res && res.noChange) {
-      showToast('ℹ️ ไม่มีการเปลี่ยนแปลง จึงไม่สร้างไฟล์ใหม่');
+      showToast('ℹ️ ไม่มีการเปลี่ยนแปลง กำลังบันทึกรูปภาพลงเครื่อง...');
+      try {
+        if (fileHandle) await saveCanvasToFile(fileHandle);
+        else downloadImg();
+      } catch (imageError) {
+        showToast('⚠️ บันทึกข้อมูลแล้ว แต่บันทึกรูปลงเครื่องไม่สำเร็จ: ' + imageError.message);
+        console.error(imageError);
+      }
     } else {
       const versionText = res && res.version ? ` เวอร์ชัน v${String(res.version).padStart(2, '0')}` : '';
-      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว' + versionText + ' กำลังดาวน์โหลด...');
-      // ดาวน์โหลดรูปอัตโนมัติหลังบันทึกเข้า Sheet + Drive สำเร็จ
-      setTimeout(() => downloadImg(), 800);
+      showToast('✅ บันทึกข้อมูลและรูปภาพเข้า Google Drive แล้ว' + versionText + ' กำลังบันทึกรูปลงเครื่อง...');
+      try {
+        if (fileHandle) await saveCanvasToFile(fileHandle);
+        else downloadImg();
+      } catch (imageError) {
+        showToast('⚠️ บันทึกข้อมูลสำเร็จ แต่บันทึกรูปลงเครื่องไม่สำเร็จ: ' + imageError.message);
+        console.error(imageError);
+      }
     }
   } catch (e) {
     showToast('⚠️ บันทึกไม่สำเร็จ: ' + e.message);
