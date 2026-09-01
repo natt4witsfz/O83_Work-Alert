@@ -906,8 +906,7 @@ async function postToGasViaHiddenForm(payload) {
       body: new URLSearchParams({ payload: JSON.stringify(payload) }),
       mode: 'no-cors',
       redirect: 'follow',
-      signal: controller.signal,
-      keepalive: true
+      signal: controller.signal
     });
 
     return { success: true, networkOnly: true };

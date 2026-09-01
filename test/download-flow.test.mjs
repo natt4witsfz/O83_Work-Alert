@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import vm from 'node:vm';
 
 const repoDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const indexHtml = await readFile(join(repoDir, 'index.html'), 'utf8');
@@ -52,10 +53,38 @@ test('Apps Script POST response closes its script tag so postMessage can run', (
 
 test('Apps Script POST does not depend on cross-origin iframe postMessage', () => {
   const postStart = indexHtml.indexOf('function postToGasViaHiddenForm');
-  const postSource = indexHtml.slice(postStart, indexHtml.indexOf('\n// ══════════════════════════════════════════════\n//  TOAST', postStart));
+  const postSource = indexHtml.slice(postStart).split('</script>')[0];
 
   assert.ok(postSource.includes("mode: 'no-cors'"), 'POST should work without readable cross-origin response headers');
   assert.ok(postSource.includes('new URLSearchParams'), 'POST should keep the Apps Script form-compatible body');
   assert.ok(postSource.includes('networkOnly: true'), 'network completion should be enough for the legacy deployment');
+  assert.doesNotMatch(postSource, /keepalive:\s*true/, 'large Base64 image payloads should not use keepalive quota');
   assert.doesNotMatch(postSource, /createElement\('iframe'\)/, 'POST should not wait for an iframe callback');
+});
+
+test('Apps Script POST resolves after the network request accepts a large payload', async () => {
+  const postStart = indexHtml.indexOf('async function postToGasViaHiddenForm');
+  const postSource = indexHtml.slice(postStart).split('\n// ══════════════════════════════════════════════')[0];
+  let request;
+  const context = {
+    AbortController,
+    GAS_URL: 'https://example.test/gas',
+    URLSearchParams,
+    clearTimeout,
+    fetch: async (...args) => {
+      request = args;
+      return { type: 'opaque' };
+    },
+    setTimeout
+  };
+
+  vm.runInNewContext(`${postSource}\nthis.post = postToGasViaHiddenForm;`, context);
+  const result = await context.post({ imageBase64: 'x'.repeat(100_000) });
+
+  assert.equal(result.success, true);
+  assert.equal(result.networkOnly, true);
+  assert.equal(request[0], 'https://example.test/gas');
+  assert.equal(request[1].method, 'POST');
+  assert.equal(request[1].mode, 'no-cors');
+  assert.ok(request[1].body.get('payload').length > 100_000);
 });
