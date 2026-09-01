@@ -7,6 +7,7 @@ import test from 'node:test';
 const repoDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const indexHtml = await readFile(join(repoDir, 'index.html'), 'utf8');
 const fallbackHtml = await readFile(join(repoDir, '404.html'), 'utf8');
+const codeGs = await readFile(join(repoDir, 'Code.gs'), 'utf8');
 
 test('Save prepares the file picker before waiting for Google Apps Script', () => {
   const saveStart = indexHtml.indexOf('async function saveToSheet()');
@@ -35,4 +36,13 @@ test('The native picker and delayed-download regression are covered in the page 
 
 test('GitHub Pages fallback stays synchronized with the main page', () => {
   assert.equal(fallbackHtml, indexHtml);
+});
+
+test('Apps Script POST response closes its script tag so postMessage can run', () => {
+  const responseBuilderStart = codeGs.indexOf('function outputPostResult_');
+  const responseBuilder = codeGs.slice(responseBuilderStart, codeGs.indexOf('\nfunction escapeHtml_', responseBuilderStart));
+
+  assert.ok(responseBuilderStart >= 0, 'outputPostResult_ should exist');
+  assert.ok(responseBuilder.includes('</script>'), 'response should contain a real closing script tag');
+  assert.equal(responseBuilder.includes(String.raw`<\\/script>`), false, 'response should not emit an escaped closing tag');
 });
