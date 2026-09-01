@@ -45,5 +45,15 @@ test('Apps Script POST response closes its script tag so postMessage can run', (
   assert.ok(responseBuilderStart >= 0, 'outputPostResult_ should exist');
   assert.ok(responseBuilder.includes("const scriptClose = '<' + '/script>';"), 'response should build a real closing script tag at runtime');
   assert.ok(responseBuilder.includes('${scriptClose}</body></html>'), 'response should append the runtime closing script tag');
+  assert.ok(responseBuilder.includes('window.top.postMessage'), 'response should reach the top-level page');
+  assert.equal(responseBuilder.includes('parent.postMessage'), false, 'response should not target the intermediate Apps Script iframe');
   assert.equal(responseBuilder.includes(String.raw`<\\/script>`), false, 'response should not emit an escaped closing tag');
+});
+
+test('Hidden iframe POST has a load fallback when postMessage is unavailable', () => {
+  const postStart = indexHtml.indexOf('function postToGasViaHiddenForm');
+  const postSource = indexHtml.slice(postStart, indexHtml.indexOf('\n// ══════════════════════════════════════════════\n//  TOAST', postStart));
+
+  assert.ok(postSource.includes('legacyFallback'), 'iframe load should resolve through a legacy fallback');
+  assert.ok(postSource.includes('submitted'), 'fallback should ignore the iframe initial blank load');
 });

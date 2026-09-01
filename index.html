@@ -902,6 +902,7 @@ function postToGasViaHiddenForm(payload) {
     iframe.name = iframeName;
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
+    let submitted = false;
 
     const form = document.createElement('form');
     form.method = 'POST';
@@ -943,7 +944,11 @@ function postToGasViaHiddenForm(payload) {
     window.addEventListener('message', messageListener);
 
     iframe.onload = () => {
-      // โหลด iframe เสร็จ แต่ยังไม่ได้รับการตอบกลับผ่าน postMessage
+      if (!submitted || finished) return;
+      finished = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve({ success: true, legacyFallback: true });
     };
 
     // บางครั้ง iframe load ไม่ยิง callback หรือไม่ส่ง message กลับ จึงมี fallback หลัง 15 วินาที
@@ -955,6 +960,7 @@ function postToGasViaHiddenForm(payload) {
     }, 15000);
 
     try {
+      submitted = true;
       form.submit();
     } catch (err) {
       clearTimeout(timer);

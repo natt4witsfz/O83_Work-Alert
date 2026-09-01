@@ -348,7 +348,7 @@ function parseQueryString_(qs) {
 function outputPostResult_(result) {
   const safeJson = JSON.stringify(result).replace(/</g, '\\u003c');
   const scriptClose = '<' + '/script>';
-  const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><pre>${escapeHtml_(safeJson)}</pre><script>try{parent.postMessage(${safeJson}, '*');}catch(e){}${scriptClose}</body></html>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><pre>${escapeHtml_(safeJson)}</pre><script>try{window.top.postMessage(${safeJson}, '*');}catch(e){}${scriptClose}</body></html>`;
   return HtmlService.createHtmlOutput(html);
 }
 
