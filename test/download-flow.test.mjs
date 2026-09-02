@@ -49,6 +49,13 @@ test('WebApp fallback includes every active shift currently configured in the Sh
   assert.match(defaultShiftBlock, /23:00-08:00/);
 });
 
+test('WebApp points to the deployed Apps Script that returns dynamic shift config', () => {
+  assert.ok(
+    indexHtml.includes("const GAS_URL = 'https://script.google.com/macros/s/AKfycbw5FLve901jeojY32gHV0rMlzt9igjjXMlaPm78-6De3-74yIl1MYt7xvbzmZtmj1bG/exec';"),
+    'GAS_URL should use the working deployment with dynamic shifts'
+  );
+});
+
 test('Apps Script initializes the shift Sheet with the same eight fallback shifts', () => {
   const defaultShiftBlock = codeGs.slice(
     codeGs.indexOf('const DEFAULT_SHIFTS = ['),
