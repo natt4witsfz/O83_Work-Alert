@@ -39,6 +39,26 @@ test('GitHub Pages fallback stays synchronized with the main page', () => {
   assert.equal(fallbackHtml, indexHtml);
 });
 
+test('WebApp fallback includes every active shift currently configured in the Sheet', () => {
+  const defaultShiftBlock = indexHtml.slice(
+    indexHtml.indexOf('const DEFAULT_SHIFTS = ['),
+    indexHtml.indexOf('];', indexHtml.indexOf('const DEFAULT_SHIFTS = [')) + 2
+  );
+
+  assert.match(defaultShiftBlock, /14:00-23:00/);
+  assert.match(defaultShiftBlock, /23:00-08:00/);
+});
+
+test('Apps Script initializes the shift Sheet with the same eight fallback shifts', () => {
+  const defaultShiftBlock = codeGs.slice(
+    codeGs.indexOf('const DEFAULT_SHIFTS = ['),
+    codeGs.indexOf('];', codeGs.indexOf('const DEFAULT_SHIFTS = [')) + 2
+  );
+
+  assert.match(defaultShiftBlock, /\['14:00-23:00', true, 6\]/);
+  assert.match(defaultShiftBlock, /\['23:00-08:00', true, 8\]/);
+});
+
 test('Apps Script POST response closes its script tag so postMessage can run', () => {
   const responseBuilderStart = codeGs.indexOf('function outputPostResult_');
   const responseBuilder = codeGs.slice(responseBuilderStart, codeGs.indexOf('\nfunction escapeHtml_', responseBuilderStart));
